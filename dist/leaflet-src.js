@@ -524,8 +524,8 @@ L.Mixin.Events.fire = L.Mixin.Events.fireEvent;
 		pointer = (window.PointerEvent && window.navigator.pointerEnabled && window.navigator.maxTouchPoints) ||
 				  msPointer,
 	    retina = ('devicePixelRatio' in window && window.devicePixelRatio > 1) ||
-	             ('matchMedia' in window && window.matchMedia('(min-resolution:144dpi)') &&
-	              window.matchMedia('(min-resolution:144dpi)').matches),
+	             ('matchMedia' in window && window.matchMedia('(min-resolution:144dppx)') &&
+	              window.matchMedia('(min-resolution:144dppx)').matches),
 
 	    doc = document.documentElement,
 	    ie3d = ie && ('transition' in doc.style),
@@ -2036,24 +2036,40 @@ L.Map = L.Class.extend({
 		}
 	},
 
+	_initPane: function (className, container) {
+		var elements = container.getElementsByClassName(className);
+		var pane;
+		if (elements.length === 0) {
+			pane = this._createPane(className, container);
+		} else {
+			//just use the first one for now, there should only be one
+			pane = elements.item(0);
+		}
+		return pane;
+	},
+
 	_initPanes: function () {
 		var panes = this._panes = {};
 
-		this._mapPane = panes.mapPane = this._createPane('leaflet-map-pane', this._container);
 
+		this._mapPane = panes.mapPane = this._initPane('leaflet-map-pane', this._container);
 		this._tilePane = panes.tilePane = this._createPane('leaflet-tile-pane', this._mapPane);
-		panes.objectsPane = this._createPane('leaflet-objects-pane', this._mapPane);
+		panes.objectsPane = this._initPane('leaflet-objects-pane', this._mapPane);
+
+		//probably aren't going to create our own shadows so we will just create
 		panes.shadowPane = this._createPane('leaflet-shadow-pane');
-		panes.overlayPane = this._createPane('leaflet-overlay-pane');
-		panes.markerPane = this._createPane('leaflet-marker-pane');
-		panes.popupPane = this._createPane('leaflet-popup-pane');
+
+
+		panes.overlayPane = this._initPane('leaflet-overlay-pane', panes.objectsPane);
+		panes.markerPane = this._initPane('leaflet-marker-pane', panes.objectsPane);
+		panes.popupPane = this._initPane('leaflet-popup-pane', panes.objectsPane);
 
 		var zoomHide = ' leaflet-zoom-hide';
 
 		if (!this.options.markerZoomAnimation) {
 			L.DomUtil.addClass(panes.markerPane, zoomHide);
 			L.DomUtil.addClass(panes.shadowPane, zoomHide);
-			L.DomUtil.addClass(panes.popupPane, zoomHide);
+			L.DomUtil.addinitPaneClass(panes.popupPane, zoomHide);
 		}
 	},
 
