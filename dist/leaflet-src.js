@@ -2053,11 +2053,11 @@ L.Map = L.Class.extend({
 
 
 		this._mapPane = panes.mapPane = this._initPane('leaflet-map-pane', this._container);
-		this._tilePane = panes.tilePane = this._createPane('leaflet-tile-pane', this._mapPane);
+		this._tilePane = panes.tilePane = this._initPane('leaflet-tile-pane', this._mapPane);
 		panes.objectsPane = this._initPane('leaflet-objects-pane', this._mapPane);
 
 		//probably aren't going to create our own shadows so we will just create
-		panes.shadowPane = this._createPane('leaflet-shadow-pane');
+		panes.shadowPane = this._initPane('leaflet-shadow-pane', panes.objectsPane);
 
 
 		panes.overlayPane = this._initPane('leaflet-overlay-pane', panes.objectsPane);
@@ -2069,7 +2069,7 @@ L.Map = L.Class.extend({
 		if (!this.options.markerZoomAnimation) {
 			L.DomUtil.addClass(panes.markerPane, zoomHide);
 			L.DomUtil.addClass(panes.shadowPane, zoomHide);
-			L.DomUtil.addinitPaneClass(panes.popupPane, zoomHide);
+			L.DomUtil.addClass(panes.popupPane, zoomHide);
 		}
 	},
 
